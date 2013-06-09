@@ -1,9 +1,35 @@
 from flask import Flask, request, jsonify, make_response
 import json, requests
 from werkzeug.exceptions import default_exceptions, HTTPException
+import sqlite3
+import json
 
-app = Flask(__name__)
+app = Flask( __name__ )
 
+@app.route("/west", methods=["GET"])
+def read():
+    try:
+        with open("/tmp/wall", 'r') as wall:
+            status = ""
+            for line in wall:
+                status += line
+            wall.truncate(0)
+    except Except as e:
+        status = str(e)
+    finally:
+        return status
+
+@app.route("/west", methods=["POST"])
+def write():
+    try:
+        with open("/tmp/wall", 'w') as wall:
+            wall.write(request.form['mesg'])
+            status = "Success"
+    except Exception as e:
+        status = str(e)
+    finally:
+        return status
+    
 def make_json_error(ex):
     response = jsonify(message=str(ex))
     response.status_code = (ex.code
@@ -111,3 +137,4 @@ def gmsInterface():
 if __name__ == '__main__':
     app.debug = True
     app.run()
+

@@ -3,7 +3,7 @@ import json, requests
 from werkzeug.exceptions import default_exceptions, HTTPException
 import sqlite3
 import json
-from friendconfig import friends
+from config import config
 
 app = Flask( __name__ )
 
@@ -46,7 +46,7 @@ def mesg_str(mesg):
            "\tdata: " + str(mesg["data"]) + "\n"
 
 def sendMessageToFriends(mesg, exclude):
-    friends = ['192.168.15.142', '127.0.0.1']
+    friends = config['friends']
 
     dests = list(set(friends) - set(exclude))
 
@@ -137,5 +137,9 @@ def gmsInterface():
 
 if __name__ == '__main__':
     app.debug = True
-    app.run()
+    
+    if config['listen']:
+        app.run(config['listen'])
+    else:
+        app.run()
 

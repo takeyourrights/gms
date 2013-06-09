@@ -1,1 +1,5 @@
-friends=['127.0.0.1','192.168.15.142']
+# Add YOUR friends to this list!  It's user friendly just like facebook!
+config={}
+
+config['friends'] = ['127.0.0.1']
+config['listen']  =  '0.0.0.0'

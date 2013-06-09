@@ -43,7 +43,8 @@ def sendMessageToFriends(mesg, exclude):
     statuses = {}
 
     for dest in dests:
-        r = requests.post('http://' + dest + ':5000/gms', data=json.dumps(mesg));
+        r = requests.post('http://' + dest + ':5000/gms',\
+            data=json.dumps(mesg), headers={'content-type': 'application/json'});
 
         try:    
             rj = r.json()

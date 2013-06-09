@@ -7,28 +7,18 @@ app = Flask( __name__ )
 
 @app.route("/west", methods=["GET"])
 def read():
-    try:
-        with open("/tmp/wall", 'r') as wall:
-            status = ""
-            for line in wall:
-                status += line
-            wall.truncate(0)
-    except Except as e:
-        status = str(e)
-    finally:
-        return status
-
+    conn = sqlite3.connect('/tmp/wall.db')
+    conn.execute(''' SELECT * FROM queue WHERE id = ( SELECT MAX(id) FROM queue ) ''')
+    print curr.fetchone()
+    
 @app.route("/west", methods=["POST"])
 def write():
-    try:
-        with open("/tmp/wall", 'w') as wall:
-            wall.write(request.form['mesg'])
-            status = "Success"
-    except Exception as e:
-        status = str(e)
-    finally:
-        return status
-    
+    conn = sqlite3.connect('/tmp/wall.db')
+    conn.execute(''' INSERT INTO queue (ttl, data) VALUES (30, ?) ''', ( request.form["mesg"] ) )
+    conn.close()
+
+    return True
+
 def make_json_error(ex):
     response = jsonify(message=str(ex))
     response.status_code = (ex.code

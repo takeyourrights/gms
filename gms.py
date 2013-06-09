@@ -3,6 +3,7 @@ import json, requests
 from werkzeug.exceptions import default_exceptions, HTTPException
 import sqlite3
 import json
+from friendconfig import friends
 
 app = Flask( __name__ )
 

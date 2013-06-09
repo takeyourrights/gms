@@ -49,15 +49,15 @@ def sendMessageToFriends(mesg, exclude):
             rj = r.json()
 
             if rj.error:
-                status = 'POST failed: ' + rj.error
+                status = 'POST failed: ' + str(rj.error)
             elif rj.success:
-                status = 'POST Succeeded: ' + rj.success
+                status = 'POST Succeeded: ' + str(rj.success)
             else:
                 status = 'POST failed: Error Status Undeterminable'
 
         except:
             print str(r.text)
-            status = 'JSON unrecognized: ' + r.text
+            status = 'JSON unrecognized: ' + str(r.text)
 
         statuses[dest] = status
 
@@ -77,7 +77,7 @@ def craftResponse(progress, success=None, error=None):
     if not success and not error:
         res['error'] = 'Could not determine success status on the remote side'
 
-    return res
+    return json.dumps(res)
 
 @app.route("/gms", methods=['POST'])
 def gms():
@@ -127,5 +127,5 @@ def gmsInterface():
 
 if __name__ == '__main__':
     app.debug = True
-    app.run()
+    app.run('0.0.0.0')
 

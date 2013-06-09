@@ -43,7 +43,7 @@ def sendMessageToFriends(mesg, exclude):
     statuses = {}
 
     for dest in dests:
-        r = requests.post('http://' + dest + ':5000/gms', mesg);
+        r = requests.post('http://' + dest + ':5000/gms', data=mesg);
 
         try:    
             rj = r.json()
@@ -108,8 +108,8 @@ def gms():
     statuses = sendMessageToFriends(mesg, [request.remote_addr])
 
     progress += "Sent message to:\n"
-    for address, status in statuses:
-        progress += "\t" + address + ": " + status + "\n"
+    for address in statuses.keys():
+        progress += "\t" + address + ": " + statuses[address] + "\n"
 
     # TODO: Put Message on LMS
     

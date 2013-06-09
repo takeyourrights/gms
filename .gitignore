@@ -3,3 +3,5 @@
 bin
 lib
 include
+friendconfig.py
+*.pyc

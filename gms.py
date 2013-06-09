@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify, make_response
+import json, requests
 from werkzeug.exceptions import default_exceptions, HTTPException
 import sqlite3
 import json
+from friendconfig import friends
 
 app = Flask( __name__ )
 
@@ -38,7 +40,44 @@ def sendMessageToFriends(mesg, exclude):
 
     dests = list(set(friends) - set(exclude))
 
-    return dests
+    statuses = {}
+
+    for dest in dests:
+        r = requests.post('http://' + dest + ':5000/gms', mesg);
+
+        try:    
+            rj = r.json()
+
+            if rj.error:
+                status = 'POST failed: ' + rj.error
+            elif rj.success:
+                status = 'POST Succeeded: ' + rj.success
+            else:
+                status = 'POST failed: Error Status Undeterminable'
+
+        except:
+            print str(r.text)
+            status = 'JSON unrecognized: ' + r.text
+
+        statuses[dest] = status
+
+    return statuses
+
+def craftResponse(progress, success=None, error=None):
+    res = {}
+
+    res['progress'] = progress
+    
+    if success:
+        res['success'] = success
+
+    if error:
+        res['error'] = error
+
+    if not success and not error:
+        res['error'] = 'Could not determine success status on the remote side'
+
+    return res
 
 @app.route("/gms", methods=['POST'])
 def gms():
@@ -47,7 +86,7 @@ def gms():
 
     # Confirm request is JSON
     if not request.json:
-        return "That's not JSON."
+        return craftResponse(progress, error="That's not JSON.")
 
     progress += "Request is JSON\n"
 
@@ -55,7 +94,7 @@ def gms():
 
     # Confirm request is actually a Message
     if mesg and ("ttl" not in mesg or "data" not in mesg):
-        return "That's not a Message."
+        return craftResponse(progress, error="That's not a message.")
 
     progress += "Request is Message\n"
     progress += mesg_str(mesg)
@@ -66,15 +105,15 @@ def gms():
     progress += "Decremented TTL\n"
     progress += mesg_str(mesg)
 
-    dests = sendMessageToFriends(mesg, [request.remote_addr])
+    statuses = sendMessageToFriends(mesg, [request.remote_addr])
 
     progress += "Sent message to:\n"
-    for dest in dests:
-        progress += "\t" + dest + "\n"
+    for address, status in statuses:
+        progress += "\t" + address + ": " + status + "\n"
 
     # TODO: Put Message on LMS
     
-    return progress
+    return craftResponse(progress, success="We did it wooooo")
 
 @app.route("/gms", methods=["GET"])
 def gmsInterface():

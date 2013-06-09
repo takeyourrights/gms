@@ -43,7 +43,7 @@ def sendMessageToFriends(mesg, exclude):
     statuses = {}
 
     for dest in dests:
-        r = requests.post('http://' + dest + ':5000/gms', data=mesg);
+        r = requests.post('http://' + dest + ':5000/gms', data=json.dumps(mesg));
 
         try:    
             rj = r.json()
@@ -86,7 +86,7 @@ def gms():
 
     # Confirm request is JSON
     if not request.json:
-        return craftResponse(progress, error="That's not JSON.")
+        return craftResponse(progress, error="That's not JSON."+str(request.data))
 
     progress += "Request is JSON\n"
 

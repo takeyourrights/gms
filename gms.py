@@ -43,7 +43,7 @@ def sendMessageToFriends(mesg, exclude):
     statuses = {}
 
     for dest in dests:
-        r = requests.post('http://' + dest + ':5000/gms',\
+        r = requests.post('http://' + dest + '/gms',\
             data=json.dumps(mesg), headers={'content-type': 'application/json'});
 
         try:    
@@ -128,9 +128,9 @@ def gmsInterface():
 
 if __name__ == '__main__':
     app.debug = True
-    
-    if config['listen']:
-        app.run(config['listen'])
+
+    if "listen" in config:
+        app.run(config['listen'], port=config['listenport'])
     else:
         app.run()
 

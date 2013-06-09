@@ -1,5 +1,6 @@
 # Add YOUR friends to this list!  It's user friendly just like facebook!
 config={}
 
-config['friends'] = ['127.0.0.1']
-config['listen']  =  '0.0.0.0'
+config['friends']    = ['12.34.56.78:5000']
+config['listen']     =  '0.0.0.0'
+config['listenport'] =  '5000'

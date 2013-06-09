@@ -9,28 +9,18 @@ app = Flask( __name__ )
 
 @app.route("/west", methods=["GET"])
 def read():
-    try:
-        with open("/tmp/wall", 'r') as wall:
-            status = ""
-            for line in wall:
-                status += line
-            wall.truncate(0)
-    except Except as e:
-        status = str(e)
-    finally:
-        return status
-
+    conn = sqlite3.connect('/tmp/wall.db')
+    conn.execute(''' SELECT * FROM queue WHERE id = ( SELECT MAX(id) FROM queue ) ''')
+    print curr.fetchone()
+    
 @app.route("/west", methods=["POST"])
 def write():
-    try:
-        with open("/tmp/wall", 'w') as wall:
-            wall.write(request.form['mesg'])
-            status = "Success"
-    except Exception as e:
-        status = str(e)
-    finally:
-        return status
-    
+    conn = sqlite3.connect('/tmp/wall.db')
+    conn.execute(''' INSERT INTO queue (ttl, data) VALUES (30, ?) ''', ( request.form["mesg"] ) )
+    conn.close()
+
+    return True
+
 def make_json_error(ex):
     response = jsonify(message=str(ex))
     response.status_code = (ex.code
@@ -59,15 +49,15 @@ def sendMessageToFriends(mesg, exclude):
             rj = r.json()
 
             if rj.error:
-                status = 'POST failed: ' + rj.error
+                status = 'POST failed: ' + str(rj.error)
             elif rj.success:
-                status = 'POST Succeeded: ' + rj.success
+                status = 'POST Succeeded: ' + str(rj.success)
             else:
                 status = 'POST failed: Error Status Undeterminable'
 
         except:
             print str(r.text)
-            status = 'JSON unrecognized: ' + r.text
+            status = 'JSON unrecognized: ' + str(r.text)
 
         statuses[dest] = status
 
@@ -87,7 +77,7 @@ def craftResponse(progress, success=None, error=None):
     if not success and not error:
         res['error'] = 'Could not determine success status on the remote side'
 
-    return res
+    return json.dumps(res)
 
 @app.route("/gms", methods=['POST'])
 def gms():
